@@ -7,10 +7,16 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 
 import com.app.organizze.organizze.R;
+import com.app.organizze.organizze.config.ConfiguracaoFirebase;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class PrincipalActivity extends AppCompatActivity {
+
+    FirebaseAuth autenticacao;
+    Button botaoSair;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +33,16 @@ public class PrincipalActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
+
+        botaoSair = findViewById(R.id.buttonSair);
+        botaoSair.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
+                autenticacao.signOut();
+                finish();
+            }
+        });
     }
 
     public void adicionarDespesa(View view){
