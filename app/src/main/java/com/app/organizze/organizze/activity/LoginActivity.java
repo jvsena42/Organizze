@@ -74,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                     }catch (FirebaseAuthInvalidCredentialsException e){
                         excecao = "Senha não corresponde ao usuário cadastrado";
                     } catch (Exception e) {
-                        excecao = "Erro ao cadastrar usuário!";
+                        excecao = "Erro ao logar usuário!";
                         e.printStackTrace();
                     }
                     Toast.makeText(getApplicationContext(),excecao,Toast.LENGTH_LONG).show();
