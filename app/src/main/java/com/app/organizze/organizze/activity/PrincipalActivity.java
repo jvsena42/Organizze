@@ -34,6 +34,8 @@ public class PrincipalActivity extends AppCompatActivity {
     private TextView textoSaudacao,textoSaldo;
     private FirebaseAuth autenticacao= ConfiguracaoFirebase.getFirebaseAutenticacao();
     private DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
+    private DatabaseReference usuarioRef;
+    private ValueEventListener valueEventListenerUsuario;
 
     private double receitaTotal = 0.0;
     private double despesaTotal = 0.0;
@@ -53,16 +55,21 @@ public class PrincipalActivity extends AppCompatActivity {
         textoSaldo = findViewById(R.id.textSaldo);
 
         configuraCalendarView();
-        recuperarResumo();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recuperarResumo();
     }
 
     public void recuperarResumo(){
         String emailUsuario = autenticacao.getCurrentUser().getEmail();
         String idUsuario = Base64Custom.codificarBase64(emailUsuario);
-        DatabaseReference usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
+        usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
 
-        usuarioRef.addValueEventListener(new ValueEventListener() {
+        valueEventListenerUsuario = usuarioRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Usuario usuario = dataSnapshot.getValue(Usuario.class);
@@ -123,4 +130,9 @@ public class PrincipalActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        usuarioRef.removeEventListener(valueEventListenerUsuario);
+    }
 }
