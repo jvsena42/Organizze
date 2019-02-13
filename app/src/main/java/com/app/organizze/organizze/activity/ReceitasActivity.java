@@ -44,6 +44,7 @@ public class ReceitasActivity extends AppCompatActivity {
         campoData.setText(DateCustom.dataAtual());
         recuperarReceitaTotal();
 
+
     }
 
     public void salvarReceita(View view){
@@ -58,10 +59,9 @@ public class ReceitasActivity extends AppCompatActivity {
             movimentacao.setTipo("r");
 
             Double receitaAtualizada = receitaTotal + valorRecuperado;
-
             atualizarReceita(receitaAtualizada);
-
             movimentacao.salvar(data);
+            finish();
 
         }
     }
@@ -103,7 +103,7 @@ public class ReceitasActivity extends AppCompatActivity {
         String idUsuario = Base64Custom.codificarBase64(emailUsuario);
         DatabaseReference usuarioRef =  firebaseRef.child("usuarios").child(idUsuario);
 
-        usuarioRef.child("despesaTotal").setValue(receita);
+        usuarioRef.child("receitaTotal").setValue(receita);
 
     }
 }

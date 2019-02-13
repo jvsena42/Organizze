@@ -2,6 +2,7 @@ package com.app.organizze.organizze.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,16 +15,30 @@ import android.widget.TextView;
 
 import com.app.organizze.organizze.R;
 import com.app.organizze.organizze.config.ConfiguracaoFirebase;
+import com.app.organizze.organizze.helper.Base64Custom;
+import com.app.organizze.organizze.model.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
+
+import java.text.DecimalFormat;
 
 public class PrincipalActivity extends AppCompatActivity {
 
     private MaterialCalendarView calendarView;
     private TextView textoSaudacao,textoSaldo;
-    private FirebaseAuth autenticacao;
+    private FirebaseAuth autenticacao= ConfiguracaoFirebase.getFirebaseAutenticacao();
+    private DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
+
+    private double receitaTotal = 0.0;
+    private double despesaTotal = 0.0;
+    private double resumoUsuario = 0.0;
+
 
 
     @Override
@@ -37,17 +52,36 @@ public class PrincipalActivity extends AppCompatActivity {
         textoSaudacao = findViewById(R.id.textSaudacao);
         textoSaldo = findViewById(R.id.textSaldo);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
         configuraCalendarView();
+        recuperarResumo();
 
+    }
+
+    public void recuperarResumo(){
+        String emailUsuario = autenticacao.getCurrentUser().getEmail();
+        String idUsuario = Base64Custom.codificarBase64(emailUsuario);
+        DatabaseReference usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
+
+        usuarioRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Usuario usuario = dataSnapshot.getValue(Usuario.class);
+                despesaTotal = usuario.getDespesaTotal();
+                receitaTotal = usuario.getReceitaTotal();
+                resumoUsuario = receitaTotal - despesaTotal;
+
+                DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                String resultadoFormatado = decimalFormat.format(resumoUsuario);
+
+                textoSaudacao.setText("Olá, "+ usuario.getNome() +"!");
+                textoSaldo.setText("R$ " + resultadoFormatado);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -60,7 +94,6 @@ public class PrincipalActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menuSair:
-                autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
                 autenticacao.signOut();
                 startActivity(new Intent(this,MainActivity.class));
                 finish();
