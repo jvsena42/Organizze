@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +72,7 @@ public class PrincipalActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerMovimentos);
 
         configuraCalendarView();
+        swipe();
 
         //Configurar adapter
         adapterMovimentacao = new AdapterMovimentacao(movimentacoes,this);
@@ -82,6 +84,31 @@ public class PrincipalActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapterMovimentacao);
 
 
+    }
+
+    public void swipe(){
+
+        ItemTouchHelper.Callback itemTouch = new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+
+                int dragFlags = ItemTouchHelper.ACTION_STATE_IDLE;
+                int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+                return makeMovementFlags(dragFlags,swipeFlags);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        };
+
+        new ItemTouchHelper(itemTouch).attachToRecyclerView(recyclerView);
     }
 
     public void recuperarMovimentacoes(){
@@ -112,6 +139,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
 
